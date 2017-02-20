@@ -14,17 +14,34 @@ def assign_value(values, box, value):
     return values
 
 
-def naked_twins(values):
+def naked_twins(sudoku_dict):
     """Eliminate values using the naked twins strategy.
     Args:
-        values(dict): a dictionary of the form {'box_name': '123456789', ...}
+        sudoku_dict(dict): a dictionary of the form {'box_name': '123456789', ...}
 
     Returns:
-        the values dictionary with the naked twins eliminated from peers.
+        The values dictionary with the naked twins eliminated from peers.
     """
-
     # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
+    for box in boxes:
+        if len(sudoku_dict[box]) != 2:
+            continue
+
+        peer_pairs = [p for p in peers[box] if sudoku_dict[p] == sudoku_dict[box]]
+
+        if len(peer_pairs) != 2:
+            continue
+
+        naked_twins = sudoku_dict[peer_pairs[0]]
+
+        # Eliminate the naked twins as possibilities for their peers
+        for peer in peers[box]:
+            if sudoku_dict[peer] != naked_twins:
+                sudoku_dict[peer] = sudoku_dict[peer].replace(naked_twins[0], '')
+                sudoku_dict[peer] = sudoku_dict[peer].replace(naked_twins[1], '')
+                assign_value(sudoku_dict, peer, sudoku_dict[peer])
+
+    return sudoku_dict
 
 
 def cross(a, b):
