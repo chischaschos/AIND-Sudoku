@@ -82,6 +82,7 @@ def eliminate(values):
         digit = values[box]
         for peer in peers[box]:
             values[peer] = values[peer].replace(digit, '')
+            assign_value(values, peer, values[peer])
     return values
 
 
@@ -98,6 +99,7 @@ def only_choice(values):
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
                 values[dplaces[0]] = digit
+                assign_value(values, dplaces[0], digit)
     return values
 
 
@@ -158,6 +160,7 @@ def search(values):
     for value in reduced_values[least_values_box]:
         op_values = reduced_values.copy()
         op_values[least_values_box] = value
+        assign_value(op_values, least_values_box, value)
 
         op_search_result = search(op_values)
 
@@ -178,7 +181,10 @@ def solve(grid):
         The dictionary representation of the final sudoku grid. False if no
         solution exists.
     """
-    return search(grid_values(grid))
+    values = grid_values(grid)
+    for box, value in values.items():
+        assign_value(values, box, value)
+    return search(values)
 
 
 assignments = []
