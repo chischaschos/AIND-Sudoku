@@ -43,15 +43,13 @@ def grid_values(grid):
             Values: The value in each box, e.g., '8'. If the box has no value,
                 then the value will be '123456789'.
     """
-    chars = []
-    digits = '123456789'
-    for c in grid:
-        if c in digits:
-            chars.append(c)
-        if c == '.':
-            chars.append(digits)
-    assert len(chars) == 81
-    return dict(zip(boxes, chars))
+    empty_mapper = (lambda t: t if t[1] != '.' else (t[0], '123456789'))
+    values = dict(map(empty_mapper, zip(boxes, grid)))
+
+    for box, value in values.items():
+        assign_value(values, box, value)
+
+    return values
 
 
 def display(values):
