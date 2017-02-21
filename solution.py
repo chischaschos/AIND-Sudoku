@@ -23,24 +23,28 @@ def naked_twins(sudoku_dict):
     Returns:
         The values dictionary with the naked twins eliminated from peers.
     """
-    # Find all instances of naked twins
-    for box in boxes:
-        if len(sudoku_dict[box]) != 2:
-            continue
+    # Go through all the units
+    for unit in unitlist:
+        # What if there were more than 1 pair?
+        # For now find boxes with two values
+        pairs = [box for box in unit if len(sudoku_dict[box]) == 2]
 
-        peer_pairs = [p for p in peers[box] if sudoku_dict[p] == sudoku_dict[box]]
+        # Make sure that the values are the same
+        if len(pairs) == 2 and sudoku_dict[pairs[0]] == sudoku_dict[pairs[1]]:
 
-        if len(peer_pairs) != 2:
-            continue
+            # Pick one pair
+            pair = sudoku_dict[pairs[0]]
 
-        naked_twins = sudoku_dict[peer_pairs[0]]
+            for box in unit:
+                # Skip solved values
+                if len(sudoku_dict[box]) == 1:
+                    continue
 
-        # Eliminate the naked twins as possibilities for their peers
-        for peer in peers[box]:
-            if sudoku_dict[peer] != naked_twins:
-                sudoku_dict[peer] = sudoku_dict[peer].replace(naked_twins[0], '')
-                sudoku_dict[peer] = sudoku_dict[peer].replace(naked_twins[1], '')
-                assign_value(sudoku_dict, peer, sudoku_dict[peer])
+                # Remove pair from boxes as long as it is not itself
+                if sudoku_dict[box] != pair:
+                    sudoku_dict[box] = sudoku_dict[box].replace(pair[0], '')
+                    sudoku_dict[box] = sudoku_dict[box].replace(pair[1], '')
+                    assign_value(sudoku_dict, box, sudoku_dict[box])
 
     return sudoku_dict
 
@@ -213,7 +217,7 @@ column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
 left_diagonal_units = [[a + str(i) for i, a in enumerate(rows, 1)]]
 right_diagonal_units = [[a + str(9-i) for i, a in enumerate(rows)]]
-unitlist = row_units + column_units + square_units + left_diagonal + right_diagonal
+unitlist = row_units + column_units + square_units + left_diagonal_units + right_diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
